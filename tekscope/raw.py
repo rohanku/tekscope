@@ -11,6 +11,17 @@ def send_command(soc: socket.socket, command: str):
     """
     soc.sendall(f"{command}\n".encode("utf-8"))
 
+def recv_until(soc: socket.socket, end: bytes) -> bytes:
+    ret = b""
+    while len(ret) < len(end) or ret[-len(end):] != end:
+        ret += soc.recv(1)
+    return ret
+
+def recv_length(soc: socket.socket, length: int) -> bytes:
+    ret = b""
+    while len(ret) < length:
+        ret += soc.recv(1)
+    return ret
 
 def query_ascii(soc: socket.socket) -> bytes:
     """
@@ -18,12 +29,7 @@ def query_ascii(soc: socket.socket) -> bytes:
 
     Reads to the next newline.
     """
-    ret = b""
-    data = soc.recv(1)
-    while data != b"\n":
-        ret += data
-        data = soc.recv(1)
-    return ret
+    return recv_until(soc, b"\n")
 
 def query_binary(soc: socket.socket) -> bytes:
     """
@@ -34,8 +40,8 @@ def query_binary(soc: socket.socket) -> bytes:
     header = soc.recv(2)
     assert header[0] == ord("#")
     digits = int(chr(header[1]))
-    length = int(soc.recv(digits))
-    data = soc.recv(length)
+    length = int(recv_length(soc, digits))
+    data = recv_length(soc, length)
     soc.recv(1) # Receive and discard final newline
     return data
 
