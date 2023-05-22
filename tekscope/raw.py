@@ -12,9 +12,9 @@ def send_command(soc: socket.socket, command: str):
     soc.sendall(f"{command}\n".encode("utf-8"))
 
 
-def query(soc: socket.socket) -> bytes:
+def query_ascii(soc: socket.socket) -> bytes:
     """
-    Queries output data from the oscilloscope in response to a command.
+    Queries ASCII output data from the oscilloscope in response to a command.
 
     Reads to the next newline.
     """
@@ -24,6 +24,20 @@ def query(soc: socket.socket) -> bytes:
         ret += data
         data = soc.recv(1)
     return ret
+
+def query_binary(soc: socket.socket) -> bytes:
+    """
+    Queries binary data from the oscilloscope in response to a command.
+
+    Reads according to the IEEE488.2 binary block format.
+    """
+    header = soc.recv(2)
+    assert header[0] == ord("#")
+    digits = int(chr(header[1]))
+    length = int(soc.recv(digits))
+    data = soc.recv(length)
+    soc.recv(1) # Receive and discard final newline
+    return data
 
 
 # pylint: disable-next=too-few-public-methods
@@ -85,6 +99,14 @@ class AnalogSource:
     CH2 = "CH2"
     CH3 = "CH3"
     CH4 = "CH4"
+    SOURCES = [CH1, CH2, CH3, CH4]
+
+    @staticmethod
+    def is_valid(source: str) -> bool:
+        """
+        Returns whether the given source is a valid digital source.
+        """
+        return source in AnalogSource.SOURCES
 
 
 # pylint: disable-next=too-few-public-methods
@@ -109,6 +131,15 @@ class DigitalSource:
     D13 = "D13"
     D14 = "D14"
     D15 = "D15"
+    SOURCES = [D0, D1, D2, D3, D4, D5, D6, D7, D8, D9, D10, D11, D12, D13, D14, D15]
+
+    @staticmethod
+    def is_valid(source: str) -> bool:
+        """
+        Returns whether the given source is a valid digital source.
+        """
+        return source in DigitalSource.SOURCES
+
 
 
 def data_source_cmd(state: str) -> str:

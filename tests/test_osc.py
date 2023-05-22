@@ -3,9 +3,11 @@ Tests for high-level oscilloscope API.
 """
 
 import matplotlib.pyplot as plt
-from tektronix_oscilloscope import Oscilloscope, AnalogSource
+import pytest
+from tekscope import Oscilloscope, AnalogSource
 
 
+@pytest.mark.skip(reason="testing framework unimplemented")
 def test_acquire_analog_sequence():
     """
     Tests acquisition of a length 200 analog sequence.
