@@ -15,12 +15,14 @@ from .raw import (
     DataEncdg,
 )
 from .parse import parse_ascii_seq
+from .acquisition import num_acq
 
 
 def retrieve_analog_sequence(soc: socket.socket, source: str) -> [int]:
     """
     Retrieves an analog sequence from the oscilloscope as a Python list.
     """
+    samples = num_acq(soc)
     send_command(soc, data_source_cmd(source))
     send_command(soc, data_start_cmd(1))
     send_command(soc, data_stop_cmd(1000))
