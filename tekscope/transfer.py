@@ -17,7 +17,7 @@ from .raw import (
     DigitalSource,
 )
 from .parse import parse_ribinary_seq
-from .acquisition import num_acq
+from .horizontal import record_length
 
 def set_data_source(soc: socket.socket, source: str):
     """
@@ -61,7 +61,7 @@ def retrieve_waveform(soc: socket.socket, source: str) -> [int]:
     Retrieves a waveform from the oscilloscope as a Python list.
     """
     assert AnalogSource.is_valid(source) or DigitalSource.is_valid(source)
-    samples = num_acq(soc)
+    samples = record_length(soc)
     set_data_start(soc, 1)
     set_data_stop(soc, samples)
     set_data_width(soc, 1)
@@ -73,7 +73,7 @@ def retrieve_all_waveforms(soc: socket.socket) -> dict[str, [int]]:
     """
     Retrieves all analog and digital waveforms from the oscilloscope as a dictionary of Python lists.
     """
-    samples = num_acq(soc)
+    samples = record_length(soc)
     set_data_start(soc, 1)
     set_data_stop(soc, samples)
     set_data_width(soc, 1)

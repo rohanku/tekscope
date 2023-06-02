@@ -6,17 +6,17 @@ from tekscope.transfer import retrieve_all_waveforms, retrieve_waveform
 from tekscope.io import save_waveforms, load_waveforms
 
 def transfer(args):
-	osc = Oscilloscope(host=args.host, port=args.port)
-	output = args.output if args.output else "data.tek"
+    osc = Oscilloscope(host=args.host, port=args.port)
+    output = args.output if args.output else "data.tek"
 
-	if args.all:
-		wfs = osc.retrieve_all_waveforms()
-		save_waveforms(wfs, output)
-	elif args.source:
-		wf = osc.retrieve_waveform(args.source)
-		wf_dict = {}
-		wf_dict[args.source] = wf
-		save_waveforms(wf_dict, output)
+    if args.all:
+        wfs = osc.retrieve_all_waveforms()
+        save_waveforms(wfs, output)
+    elif args.source:
+        wf = osc.retrieve_waveform(args.source)
+        wf_dict = {}
+        wf_dict[args.source] = wf
+        save_waveforms(wf_dict, output)
 
 def display(args):
     wfs = load_waveforms(args.tekfile)
@@ -44,5 +44,5 @@ parser_display.add_argument('tekfile')
 parser_display.set_defaults(func=display)
 
 def main():
-	args = parser.parse_args()
-	args.func(args)
+    args = parser.parse_args()
+    args.func(args)
