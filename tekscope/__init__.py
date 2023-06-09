@@ -19,6 +19,9 @@ class Oscilloscope:
         self.soc.connect((host, port))
         raw.send_command(self.soc, raw.header_cmd(False))
 
+    def send_raw_command(self, command):
+        raw.send_command(self.soc, command)
+
     def start_acquire(self):
         """
         Starts an acquisition.
@@ -52,5 +55,8 @@ class Oscilloscope:
     def retrieve_waveform(self, source: str) -> [int]:
         return transfer.retrieve_waveform(self.soc, source)
 
-    def retrieve_all_waveforms(self) -> dict[str, [int]]:
+    def retrieve_waveform_parameters(self, source: str):
+        return transfer.retrieve_waveform_parameters(self.soc, source)
+
+    def retrieve_all_waveforms(self):
         return transfer.retrieve_all_waveforms(self.soc)

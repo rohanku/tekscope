@@ -5,6 +5,7 @@ Wrapper functions for transferring data to/from the oscilloscope.
 import socket
 from .raw import (
     send_command,
+    query_ascii,
     query_binary,
     data_source_cmd,
     data_start_cmd,
@@ -12,6 +13,7 @@ from .raw import (
     data_width_cmd,
     data_encdg_cmd,
     curve_cmd,
+    wfmoutpre_cmd,
     DataEncdg,
     AnalogSource,
     DigitalSource,
@@ -56,6 +58,13 @@ def get_curve(soc: socket.socket) -> bytes:
     send_command(soc, curve_cmd())
     return query_binary(soc)
 
+def get_wfmoutpre(soc: socket.socket) -> bytes:
+    """
+    Retrieves curve parameters from oscilloscope following existing data setting.
+    """
+    send_command(soc, wfmoutpre_cmd())
+    return query_ascii(soc)
+
 def retrieve_waveform(soc: socket.socket, source: str) -> [int]:
     """
     Retrieves a waveform from the oscilloscope as a Python list.
@@ -69,7 +78,19 @@ def retrieve_waveform(soc: socket.socket, source: str) -> [int]:
     set_data_source(soc, source)
     return parse_ribinary_seq(get_curve(soc), 1)
 
-def retrieve_all_waveforms(soc: socket.socket) -> dict[str, [int]]:
+def retrieve_waveform_parameters(soc: socket.socket, source: str) -> str:
+    """
+    Retrieves a waveform's parameters from the oscilloscope as a string.
+    """
+    samples = record_length(soc)
+    set_data_start(soc, 1)
+    set_data_stop(soc, samples)
+    set_data_width(soc, 1)
+    set_data_encdg(soc, DataEncdg.BINARY)
+    set_data_source(soc, source)
+    return get_wfmoutpre(soc).decode('utf-8')
+
+def retrieve_all_waveforms(soc: socket.socket):
     """
     Retrieves all analog and digital waveforms from the oscilloscope as a dictionary of Python lists.
     """
