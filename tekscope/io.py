@@ -5,7 +5,7 @@ Utilities for saving oscilloscope data to disk.
 import os
 import pickle
 
-def save_waveforms(waveforms, [int]], out_path: str):
+def save_waveforms(waveforms, out_path: str):
     with open(out_path, "wb") as f:
         f.write(pickle.dumps(waveforms))
 
