@@ -3,10 +3,11 @@ API for interfacing with a Tektronix oscilloscope.
 """
 
 import socket
-import tekscope.raw as raw
-import tekscope.parse as parse
-import tekscope.transfer as transfer
-import tekscope.io as io
+from tekscope import raw
+from tekscope import parse
+from tekscope import transfer
+from tekscope import io
+
 
 class Oscilloscope:
     """
@@ -20,6 +21,9 @@ class Oscilloscope:
         raw.send_command(self.soc, raw.header_cmd(False))
 
     def send_raw_command(self, command):
+        """
+        Sends a raw command to the oscilloscope.
+        """
         raw.send_command(self.soc, command)
 
     def start_acquire(self):
@@ -40,7 +44,9 @@ class Oscilloscope:
         """
         raw.send_command(self.soc, raw.select_cmd(source, True))
         raw.send_command(self.soc, raw.acquire_numsequence_cmd(num_acq))
-        raw.send_command(self.soc, raw.acquire_stopafter_cmd(raw.AcquireStopAfter.SEQUENCE))
+        raw.send_command(
+            self.soc, raw.acquire_stopafter_cmd(raw.AcquireStopAfter.SEQUENCE)
+        )
         raw.send_command(self.soc, raw.acquire_state_cmd(raw.AcquireState.RUN))
         raw.send_command(self.soc, raw.data_source_cmd(source))
         raw.send_command(self.soc, raw.data_start_cmd(1))
@@ -53,10 +59,19 @@ class Oscilloscope:
         return parse.parse_ribinary_seq(raw.query_binary(self.soc), 1)
 
     def retrieve_waveform(self, source: str) -> [int]:
+        """
+        Retrieves a waveform from the oscilloscope.
+        """
         return transfer.retrieve_waveform(self.soc, source)
 
     def retrieve_waveform_parameters(self, source: str):
+        """
+        Retrieves a waveform's parameters from the oscilloscope.
+        """
         return transfer.retrieve_waveform_parameters(self.soc, source)
 
     def retrieve_all_waveforms(self):
+        """
+        Retrieves all waveforms from the oscilloscope.
+        """
         return transfer.retrieve_all_waveforms(self.soc)
