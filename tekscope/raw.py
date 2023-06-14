@@ -12,26 +12,37 @@ def send_command(soc: socket.socket, command: str):
     """
     soc.sendall(f"{command}\n".encode("utf-8"))
 
+
 def recv_until(soc: socket.socket, end: bytes) -> bytes:
+    """
+    Receives until the next occurrence of `end`.
+
+    Slow because it receives only one byte at a time.
+    """
     ret = b""
-    while len(ret) < len(end) or ret[-len(end):] != end:
+    while len(ret) < len(end) or ret[-len(end) :] != end:
         ret += soc.recv(1)
     return ret
 
+
 def recv_length(soc: socket.socket, length: int) -> bytes:
+    """
+    Receives the given number of bytes.
+    """
     ret = b""
     print(f"Reading {length} bytes...")
     count = 0
-    count_granularity = (length-1) // 10 + 1
+    count_granularity = (length - 1) // 10 + 1
     while len(ret) < length:
         ret += soc.recv(min([4096, length - len(ret)]))
         if len(ret) > count * count_granularity:
-            new_count =len(ret) // count_granularity 
-            print("".join(["#" for i in range(new_count - count)]), end='')
+            new_count = len(ret) // count_granularity
+            print("".join(["#" for i in range(new_count - count)]), end="")
             sys.stdout.flush()
             count = new_count
     print("#")
     return ret
+
 
 def query_ascii(soc: socket.socket) -> bytes:
     """
@@ -40,6 +51,7 @@ def query_ascii(soc: socket.socket) -> bytes:
     Reads to the next newline.
     """
     return recv_until(soc, b"\n")
+
 
 def query_binary(soc: socket.socket) -> bytes:
     """
@@ -52,7 +64,7 @@ def query_binary(soc: socket.socket) -> bytes:
     digits = int(chr(header[1]))
     length = int(recv_length(soc, digits))
     data = recv_length(soc, length)
-    soc.recv(1) # Receive and discard final newline
+    soc.recv(1)  # Receive and discard final newline
     return data
 
 
@@ -103,6 +115,7 @@ def acquire_stopafter_cmd(stopafter: str) -> str:
     or acquire only a single sequence.
     """
     return f"ACQUIRE:STOPAFTER {stopafter}"
+
 
 def horizontal_recordlength_query() -> str:
     """
@@ -161,7 +174,6 @@ class DigitalSource:
         Returns whether the given source is a valid digital source.
         """
         return source in DigitalSource.SOURCES
-
 
 
 def data_source_cmd(state: str) -> str:

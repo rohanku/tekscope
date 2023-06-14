@@ -4,7 +4,8 @@ Tests for high-level oscilloscope API.
 
 import matplotlib.pyplot as plt
 import pytest
-from tekscope import Oscilloscope, AnalogSource
+from tekscope import Oscilloscope
+from tekscope.raw import AnalogSource
 
 
 @pytest.mark.skip(reason="testing framework unimplemented")
